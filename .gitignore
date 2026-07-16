@@ -1,0 +1,33 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Coverage
+coverage
+*.lcov
+
+# Optional eslint cache
+.eslintcache
+
+# Optional pnpm store directory
+.pnpm-store/
+
+# dotenv environment variables file
+.env
+.env.*.local
+
+# Dependency directories
+node_modules/
+
+# Build artifacts
+dist/
+
+# IDEs and editors
+.idea/
+.vscode/
+
+# OS-specific files
+.DS_Store
+Thumbs.db

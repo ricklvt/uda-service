@@ -1,0 +1,31 @@
+name: argo-deploy-prd
+run-name: ${{ github.actor }} is releasing ${{ github.ref_name }}
+
+on:
+  release:
+    types: [published]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy-prod:
+    strategy:
+      fail-fast: false
+      matrix:
+        env:
+          - stg
+          - prd # requires approval
+    permissions:
+      id-token: write
+      contents: read
+    name: Deploy to ArgoCD - ${{ matrix.env }}
+    uses: liveviewtech/actions/.github/workflows/argo-deploy.yml@v3
+    with:
+      app-name: uda-service
+      app-env: ${{ matrix.env }}
+      overrides-repo: argocd-backend-image-tags
+      overrides-path: uda-service
+      kube-namespace: backend
+    secrets: inherit

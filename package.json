@@ -1,0 +1,39 @@
+{
+  "name": "uda-service",
+  "version": "0.1.0",
+  "description": "",
+  "type": "module",
+  "packageManager": "pnpm@11.0.8",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "tsc --noEmit && node --import ./src/bootstrap.ts src/main.ts",
+    "build": "tsc",
+    "start": "node --import ./dist/bootstrap.js dist/main.js",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@lvt/telemetry": "^3.1.0",
+    "dotenv": "^17.2.3",
+    "openai": "^6.15.0"
+  },
+  "devDependencies": {
+    "@stylistic/eslint-plugin": "^5.5.0",
+    "@types/node": "^24.10.0",
+    "@vitest/coverage-v8": "^4.0.16",
+    "eslint": "^9.39.1",
+    "eslint-plugin-import-newlines": "^1.4.0",
+    "globals": "^16.5.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.4",
+    "vitest": "^4.0.16"
+  }
+}

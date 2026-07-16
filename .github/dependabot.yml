@@ -1,0 +1,39 @@
+version: 2
+registries:
+  artifactory:
+    type: npm-registry
+    url: https://lvt.jfrog.io/artifactory/api/npm/npm/
+    username: ${{ secrets.ARTIFACTORY_USERNAME }}
+    password: ${{ secrets.ARTIFACTORY_PASSWORD }}
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+    registries:
+      - artifactory
+    groups:
+      patch-and-minor-prod-updates:
+        dependency-type: production
+        update-types:
+          - patch
+          - minor
+      patch-and-minor-dev-updates:
+        dependency-type: development
+        update-types:
+          - patch
+          - minor
+    labels:
+      - dependencies
+      - bot
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    labels:
+      - dependencies
+      - bot
+    groups:
+      actions-deps:
+        patterns:
+          - "*"

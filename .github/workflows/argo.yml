@@ -1,0 +1,46 @@
+name: argo-deploy
+run-name: ${{ github.actor }} is deploying ${{ github.ref_name }} to ${{ github.event_name == 'workflow_run' && 'int' || inputs.environment }}
+
+on:
+  workflow_run:
+    workflows: [docker-build]
+    branches: [main]
+    types:
+      - completed
+  workflow_dispatch:
+    inputs:
+      app-version:
+        required: false
+        type: string
+        description: version of app to deploy (defaults to head commit sha)
+      environment:
+        required: true
+        type: choice
+        description: environment to deploy to
+        options:
+          - int
+          - stg
+        default: int
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+    permissions:
+      id-token: write
+      contents: read
+    name: Deploy to ArgoCD - ${{ github.event_name == 'workflow_run' && 'int' || inputs.environment }}
+    uses: liveviewtech/actions/.github/workflows/argo-deploy.yml@v3
+    with:
+      app-name: uda-service
+      app-env: ${{ github.event_name == 'workflow_run' && 'int' || inputs.environment }}
+      app-version: ${{ inputs.app-version }}
+      overrides-repo: argocd-backend-image-tags
+      overrides-path: uda-service
+      kube-namespace: backend
+    secrets: inherit

@@ -1,0 +1,29 @@
+---
+name: analysis
+
+on: [push]
+
+jobs:
+  lint-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install pnpm
+        run: corepack enable
+      - name: Install dependencies
+        run: |-
+          curl -Ls --user "${{ secrets.ARTIFACTORY_USERNAME }}:${{ secrets.ARTIFACTORY_PASSWORD }}" \
+            https://lvt.jfrog.io/artifactory/api/npm/npm/auth/lvt > .npmrc
+          pnpm install --frozen-lockfile
+      - name: Build
+        run: pnpm build
+      - name: Lint
+        run: pnpm lint
+      - name: Test
+        if: always()
+        run: pnpm test:coverage
