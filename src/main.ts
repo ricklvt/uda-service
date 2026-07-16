@@ -1,11 +1,18 @@
-import { getLogger } from './logger.ts';
+import { UDARequestListener } from './listener';
+import { getLogger } from './logger';
 
 const logger = getLogger('main');
 
-function main(): void {
+async function main(): Promise<void> {
   logger.info('uda-service starting', { node: process.version });
-  // TODO: wire up the service (HTTP / gRPC / worker) here.
+
+  const listener = new UDARequestListener();
+  await listener.start();
+
   logger.info('uda-service started');
 }
 
-main();
+main().catch((err: unknown) => {
+  logger.logThrown('fatal error during startup', err);
+  process.exit(1);
+});
