@@ -2,15 +2,15 @@
   "name": "uda-service",
   "version": "0.1.0",
   "description": "",
-  "type": "module",
+  "type": "commonjs",
   "packageManager": "pnpm@11.0.8",
   "engines": {
     "node": ">=24"
   },
   "scripts": {
-    "dev": "tsc --noEmit && node --import ./src/bootstrap.ts src/main.ts",
-    "build": "tsc",
-    "start": "node --import ./dist/bootstrap.js dist/main.js",
+    "dev": "tsc --noEmit && tsx --require ./src/bootstrap.ts src/main.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node -r ./dist/bootstrap.js dist/main.js",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
@@ -21,9 +21,15 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@bufbuild/protobuf": "^2.12.1",
+    "@lvt/mqtt": "^6.0.5",
+    "@lvt/protobufs": "^55.86.0",
     "@lvt/telemetry": "^3.1.0",
     "dotenv": "^17.2.3",
-    "openai": "^6.15.0"
+    "mqtt": "^5.15.2",
+    "openai": "^6.15.0",
+    "winston": "^3.19.0",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@stylistic/eslint-plugin": "^5.5.0",
@@ -32,6 +38,7 @@
     "eslint": "^9.39.1",
     "eslint-plugin-import-newlines": "^1.4.0",
     "globals": "^16.5.0",
+    "tsx": "^4.23.1",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.4",
     "vitest": "^4.0.16"
