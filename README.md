@@ -34,6 +34,10 @@ nodenext` so TypeScript honors dependencies' `exports` maps while still emitting
 CJS. This is required because the `@lvt` backend libraries (`@lvt/mqtt`,
 `@lvt/logger`) are CommonJS/NestJS-oriented and do not work under pure ESM.
 
+Internal modules use the `@/*` alias (→ `src/*`). `tsx` resolves it in dev,
+`vite-tsconfig-paths` in tests, and `tsc-alias` rewrites it to relative paths in
+the `dist/` build output.
+
 ## Telemetry bootstrap
 
 `src/bootstrap.ts` calls `@lvt/telemetry`'s `telemetryStart()`, which **must run

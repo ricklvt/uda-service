@@ -6,9 +6,11 @@ import {
 } from '@lvt/mqtt/node';
 import * as genaipb from '@lvt/protobufs/lvt/legacy_security_events/v1/gen_ai_pb';
 
-import { getLogger } from './logger';
+import { getLogger } from '@/logger';
+import { OpenAIDetectionService } from '@/services/openai.service';
 
 const logger = getLogger('uda-request-listener');
+const MATCH_MIN_CONFIDENCE = Number.parseFloat(process.env.MATCH_MIN_CONFIDENCE ?? '0.6');
 
 /**
  * Listens over MQTT for the AI Talkdown audio-generation requests that the
@@ -18,6 +20,11 @@ const logger = getLogger('uda-request-listener');
 export class UDARequestListener {
   private mqttClient?: MqttClient;
   private rpcClient?: MqttRpcClient;
+  private detector: OpenAIDetectionService;
+
+  public constructor() {
+    this.detector = new OpenAIDetectionService();
+  }
 
   public async start(): Promise<void> {
     this.mqttClient = await MqttClient.createMqttClient();
@@ -39,17 +46,36 @@ export class UDARequestListener {
     logger.notice('AI Audio request listener stopped');
   }
 
-  private handleRequest(topic: string, req: genaipb.GenerateAudioRequest): void {
-    const liveunitUuid = extractRoutingUuidFromTopic(topic);
-    logger.info('received pre-alert image', {
-      topic,
-      liveunitUuid,
-      requestUuid: req.requestUuid,
-      eventUuid: req.eventUuid,
-      detectionCameraUuid: req.detectionCameraUuid,
-      talkdownProfile: genaipb.TalkdownProfile[req.talkdownProfile] ?? req.talkdownProfile,
-      cameraSnapshotBytes: req.cameraSnapshot.length,
-      hasDeprecatedEventUuid: req.deprecatedEventUuid !== undefined,
-    });
+  private async handleRequest(topic: string, req: genaipb.GenerateAudioRequest): Promise<void> {
+    try {
+      const liveunitUuid = extractRoutingUuidFromTopic(topic);
+      logger.info('received pre-alert image', {
+        topic,
+        liveunitUuid,
+        requestUuid: req.requestUuid,
+        eventUuid: req.eventUuid,
+        detectionCameraUuid: req.detectionCameraUuid,
+      });
+
+      const ans = await this.detector.querySearchPhrase('white truck or a bicycle', Buffer.from(req.cameraSnapshot));
+      logger.info('OpenAI detection result', {
+        liveunitUuid,
+        requestUuid: req.requestUuid,
+        eventUuid: req.eventUuid,
+        openaiResult: ans,
+      });
+      logger.info(`interpreting this image as a ${ans.confidence >= MATCH_MIN_CONFIDENCE ? 'match' : 'non-match'}`);
+    } catch (err) {
+      while (err instanceof Error && err.cause) {
+        err = err.cause;
+      }
+      logger.error('failed to handle UDA request', {
+        topic,
+        requestUuid: req.requestUuid,
+        eventUuid: req.eventUuid,
+        detectionCameraUuid: req.detectionCameraUuid,
+        error: err,
+      });
+    }
   }
 }

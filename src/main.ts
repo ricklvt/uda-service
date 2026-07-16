@@ -1,5 +1,5 @@
-import { UDARequestListener } from './listener';
-import { getLogger } from './logger';
+import { UDARequestListener } from '@/listener';
+import { getLogger } from '@/logger';
 
 const logger = getLogger('main');
 

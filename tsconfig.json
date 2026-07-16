@@ -6,6 +6,8 @@
     "rootDir": "./src",
     "outDir": "./dist",
     "strict": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
     "noImplicitOverride": true,
@@ -13,7 +15,10 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "sourceMap": true,
-    "types": ["node"]
+    "types": ["node"],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
